@@ -1,18 +1,22 @@
 import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
-
+import 'dart:async';
 import '../constants/game_constants.dart';
 import 'worm.dart';
+import 'package:wormsounds/game/notemanager.dart';
 
 class WormSoundsGame extends FlameGame {
   Worm? _worm;
+  late NoteManager noteManager;
 
   final Map<String, double> _notePositions = {};
 
   final List<RectangleComponent> _staffLines = [];
 
   RectangleComponent? _ledgerLine;
+
+
 
   double _staffBottomY = 0;
   double _staffLineSpacing = 0;
@@ -41,6 +45,10 @@ class WormSoundsGame extends FlameGame {
     _resizeWorm();
 
     add(worm);
+
+    noteManager = NoteManager();
+    add(noteManager);
+
   }
 
   // ------------------------------------------------------------
@@ -160,32 +168,36 @@ class WormSoundsGame extends FlameGame {
     final halfStep =
         _staffLineSpacing / 2;
 
-    _notePositions['C'] =
+    _notePositions['B'] =
         _staffBottomY +
             _staffLineSpacing;
 
-    _notePositions['D'] =
+    _notePositions['C'] =
         _staffBottomY +
             halfStep;
 
-    _notePositions['E'] =
+    _notePositions['D'] =
         _staffBottomY;
+
+    _notePositions['E'] =
+        _staffBottomY -
+            halfStep;
 
     _notePositions['F'] =
         _staffBottomY -
-            halfStep;
+            _staffLineSpacing;
 
     _notePositions['G'] =
         _staffBottomY -
-            _staffLineSpacing;
+            (_staffLineSpacing * 1.5);
 
     _notePositions['A'] =
         _staffBottomY -
-            (_staffLineSpacing * 1.5);
-
-    _notePositions['B'] =
-        _staffBottomY -
             (_staffLineSpacing * 2);
+
+    _notePositions['b'] =
+        _staffBottomY -
+            (_staffLineSpacing * 2.5);
   }
 
   // ------------------------------------------------------------
@@ -238,5 +250,10 @@ class WormSoundsGame extends FlameGame {
     super.onGameResize(gameSize);
 
     _layoutGame(gameSize);
+
   }
+
+
+
+
 }
