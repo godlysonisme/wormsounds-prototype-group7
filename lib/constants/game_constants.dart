@@ -8,12 +8,12 @@ class GameConstants {
 
   // Staff
   static const double maxStaffLineSpacing = 45;
-  static const double minStaffLineSpacing = 24;
+  static const double minStaffLineSpacing = 40;
 
   static const double staffSidePadding = 20;
   static const double staffLineThickness = 2;
 
-  static const double staffVerticalPosition = 0.62;
+  static const double staffVerticalPosition = 0.68;
 
   static const double ledgerLineWidth = 110;
 
@@ -22,13 +22,14 @@ class GameConstants {
   static const double pianoKeyHeightLandscape = 75;
 
   static const List<String> whiteNotes = [
+    'B',
     'C',
     'D',
     'E',
     'F',
     'G',
     'A',
-    'B',
+    'b',
   ];
 
   // Colours
