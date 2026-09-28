@@ -1,30 +1,44 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:wormsounds/main.dart';
+import 'package:wormsounds/game/keys.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets(
+    'Piano keys display C through B',
+        (WidgetTester tester) async {
+      String? pressedNote;
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: PianoKeys(
+              onNotePressed: (note) {
+                pressedNote = note;
+              },
+            ),
+          ),
+        ),
+      );
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+      expect(find.text('C'), findsOneWidget);
+      expect(find.text('D'), findsOneWidget);
+      expect(find.text('E'), findsOneWidget);
+      expect(find.text('F'), findsOneWidget);
+      expect(find.text('G'), findsOneWidget);
+      expect(find.text('A'), findsOneWidget);
+      expect(find.text('B'), findsOneWidget);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
-  });
+      await tester.tap(
+        find.text('G'),
+      );
+
+      await tester.pump();
+
+      expect(
+        pressedNote,
+        'G',
+      );
+    },
+  );
 }
