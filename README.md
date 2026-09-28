@@ -1,17 +1,53 @@
-# wormsounds
+# WormSounds
 
-A new Flutter project.
+## Overview
+Game explanation
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
+## Development
 
-A few resources to get you started if this is your first Flutter project:
+This game was developed feature by feature, with GPT helping in many stages throughout. Each subheading is a stage, each containing the GPT prompts used.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+---
+### Setting Up Piano Keys
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+This section was done mostly by hand, but GPT was used to optimise the code.
+
+Prompt (Attached was the corresponding code):
+
+``` 
+How can I optimize this code to repeat repetition?
+```
+---
+### Setting up the Files and getting movement working
+This section was entirely done by hand.
+
+---
+### Sprite Animation + Visual Design
+
+
+---
+
+---
+### Piano Audio
+
+
+---
+
+---
+### Note Targets / Gameplay
+
+
+---
+
+---
+### Teaching Phase
+
+
+---
+
+---
+### Score / Failure / Restart
+
+
+---

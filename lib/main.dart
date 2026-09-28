@@ -8,23 +8,28 @@ Future<void> main() async {
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
   ]);
+
+  // Hide the Android status bar and navigation bar.
+  await SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.immersiveSticky,
+  );
 
   runApp(
     const WormSoundsApp(),
   );
 }
 
-class WormSoundsApp
-    extends StatelessWidget {
+class WormSoundsApp extends StatelessWidget {
   const WormSoundsApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Worm Sounds',
-      debugShowCheckedModeBanner:
-      false,
+      debugShowCheckedModeBanner: false,
       theme: ThemeData.dark(),
       home: const TestLevel(),
     );

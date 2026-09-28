@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
 
 class GameConstants {
-  // -------------------------
   // Worm
-  // -------------------------
-
   static const double wormSize = 80;
+  static const double minWormSize = 48;
   static const double wormMovementSpeed = 500;
 
-  // -------------------------
-  // Musical staff
-  // -------------------------
+  // Staff
+  static const double maxStaffLineSpacing = 45;
+  static const double minStaffLineSpacing = 24;
 
-  static const double staffLineSpacing = 45;
   static const double staffSidePadding = 20;
   static const double staffLineThickness = 2;
 
@@ -20,11 +17,9 @@ class GameConstants {
 
   static const double ledgerLineWidth = 110;
 
-  // -------------------------
-  // Piano keys
-  // -------------------------
-
-  static const double pianoKeyHeight = 110;
+  // Piano
+  static const double pianoKeyHeightPortrait = 110;
+  static const double pianoKeyHeightLandscape = 75;
 
   static const List<String> whiteNotes = [
     'C',
@@ -36,10 +31,7 @@ class GameConstants {
     'B',
   ];
 
-  // -------------------------
   // Colours
-  // -------------------------
-
   static const Color backgroundColor =
   Color(0xFF87CEEB);
 

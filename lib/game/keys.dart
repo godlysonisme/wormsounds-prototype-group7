@@ -6,14 +6,16 @@ class PianoKeys extends StatelessWidget {
   const PianoKeys({
     super.key,
     required this.onNotePressed,
+    required this.height,
   });
 
   final ValueChanged<String> onNotePressed;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: GameConstants.pianoKeyHeight,
+      height: height,
       child: Row(
         children: GameConstants.whiteNotes.map((note) {
           return Expanded(
@@ -28,7 +30,7 @@ class PianoKeys extends StatelessWidget {
                 GameConstants.pianoWhite,
                 minimumSize: Size(
                   0,
-                  GameConstants.pianoKeyHeight,
+                  height,
                 ),
                 padding: EdgeInsets.zero,
                 shape: const RoundedRectangleBorder(
@@ -41,8 +43,8 @@ class PianoKeys extends StatelessWidget {
               ),
               child: Text(
                 note,
-                style: const TextStyle(
-                  fontSize: 20,
+                style: TextStyle(
+                  fontSize: height < 90 ? 16 : 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
