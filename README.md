@@ -26,25 +26,21 @@ This section was entirely done by hand.
 ### Sprite Animation + Visual Design
 
 
----
 
 ---
 ### Piano Audio
 
 
----
 
 ---
 ### Note Targets / Gameplay
 
 
----
 
 ---
 ### Teaching Phase
 
 
----
 
 ---
 ### Score / Failure / Restart
