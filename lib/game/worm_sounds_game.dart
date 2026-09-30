@@ -11,13 +11,41 @@ import 'package:wormsounds/game/background.dart';
 import 'package:wormsounds/game/phase.dart';
 import 'package:wormsounds/game/phasetext.dart';
 import 'package:wormsounds/game/notesounds.dart';
+import 'package:wormsounds/game/scoretext.dart';
+import 'package:wormsounds/game/difficulty.dart';
+import 'package:wormsounds/game/levelresult.dart';
 
 class WormSoundsGame extends FlameGame with HasCollisionDetection {
+  WormSoundsGame({
+    required this.difficulty,
+    required this.onLevelComplete,
+  });
+
+  // Only used for the rating on the end level screen.
+  final Difficulty difficulty;
+
+  // Called once the level is finished, to show the end screen.
+  final ValueChanged<LevelResult> onLevelComplete;
+
   Worm? _worm;
   late NoteManager noteManager;
 
   // Plays each note's sound when it reaches the worm.
-  final NoteSounds noteSounds = NoteSounds();
+  final NoteSounds noteSounds = NoteSounds.shared;
+
+  final ScoreText _scoreText = ScoreText();
+
+  // Score so far, and the score a perfect run would
+  // have by now (used for the rating).
+  int score = 0;
+  int maxScore = 0;
+  int notesHit = 0;
+  int notesTotal = 0;
+
+  // True while the player holds the vibrato bar.
+  bool isVibratoActive = false;
+
+  bool _levelFinished = false;
 
   final Map<String, double> _notePositions = {};
 
@@ -49,6 +77,8 @@ class WormSoundsGame extends FlameGame with HasCollisionDetection {
     _createStaffComponents();
 
     add(_phaseText);
+
+    add(_scoreText);
 
     _layoutGame(size);
 
@@ -108,11 +138,22 @@ class WormSoundsGame extends FlameGame with HasCollisionDetection {
     final calculatedSpacing =
         gameSize.y * 0.085;
 
-    _staffLineSpacing =
+    // On short screens (e.g. landscape with the vibrato
+    // bar) the staff is made a little smaller so the phase
+    // text, the staff and the bottom note all still fit.
+    final maxSpacingForHeight =
+        (gameSize.y - GameConstants.phaseTextAreaHeight) / 4.6;
+
+    _staffLineSpacing = math.max(
+      math.min(
         calculatedSpacing.clamp(
           GameConstants.minStaffLineSpacing,
           GameConstants.maxStaffLineSpacing,
-        ).toDouble();
+        ).toDouble(),
+        maxSpacingForHeight,
+      ),
+      20.0,
+    );
 
     // Keep enough room above the staff for the
     // phase text, which matters on short screens
@@ -160,6 +201,12 @@ class WormSoundsGame extends FlameGame with HasCollisionDetection {
     _phaseText.position = Vector2(
       gameSize.x / 2,
       staffTopY - GameConstants.phaseTextGap,
+    );
+
+    // Score sits in the top-right corner.
+    _scoreText.position = Vector2(
+      gameSize.x - 12,
+      12,
     );
 
     _calculateNotePositions();
@@ -299,6 +346,30 @@ class WormSoundsGame extends FlameGame with HasCollisionDetection {
       currentPhase = phase;
     }
 
+    // Once "LEVEL COMPLETE" has been shown for a moment,
+    // move on to the end level screen.
+    if (phase == GamePhase.complete && !_levelFinished) {
+      _levelFinished = true;
+
+      add(
+        TimerComponent(
+          period: GameConstants.levelEndDelay,
+          removeOnFinish: true,
+          onTick: () {
+            onLevelComplete(
+              LevelResult(
+                score: score,
+                maxScore: maxScore,
+                notesHit: notesHit,
+                notesTotal: notesTotal,
+                difficulty: difficulty,
+              ),
+            );
+          },
+        ),
+      );
+    }
+
     final title = isUpNext
         ? 'UP NEXT: ${phase.title}'
         : phase.title;
@@ -307,6 +378,32 @@ class WormSoundsGame extends FlameGame with HasCollisionDetection {
       title,
       phase.description,
     );
+  }
+
+  // ------------------------------------------------------------
+  // SCORE
+  // ------------------------------------------------------------
+
+  // Called by each scored note once it has played.
+  void recordNote({required bool isHit, required int points}) {
+    notesTotal++;
+    maxScore +=
+        GameConstants.hitPoints + GameConstants.timingBonusPoints;
+
+    if (isHit) {
+      notesHit++;
+      score += points;
+      _scoreText.show(score);
+    }
+  }
+
+  // ------------------------------------------------------------
+  // VIBRATO
+  // ------------------------------------------------------------
+
+  void setVibrato(bool isActive) {
+    isVibratoActive = isActive;
+    _worm?.isVibrato = isActive;
   }
 
   // ------------------------------------------------------------

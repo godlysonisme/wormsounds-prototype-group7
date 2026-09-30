@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 
@@ -34,13 +36,31 @@ class Worm extends SpriteComponent {
   final double movementSpeed =
       GameConstants.wormMovementSpeed;
 
+  // Vibrato animation: while vibrato is held the worm
+  // flaps its wing (swapping between Worm.png and
+  // WormFlap.png) and wobbles side to side.
+  bool isVibrato = false;
+
+  late final Sprite _wingDownSprite;
+  late final Sprite _wingUpSprite;
+
+  bool _wingUp = false;
+  double _flapTimer = 0;
+  double _wobbleTime = 0;
+
   @override
   Future<void> onLoad() async {
     await super.onLoad();
 
-    sprite = await Sprite.load(
+    _wingDownSprite = await Sprite.load(
       'Worm.png',
     );
+
+    _wingUpSprite = await Sprite.load(
+      'WormFlap.png',
+    );
+
+    sprite = _wingDownSprite;
 
     targetY = position.y;
 
@@ -78,6 +98,8 @@ class Worm extends SpriteComponent {
   void update(double dt) {
     super.update(dt);
 
+    _updateVibrato(dt);
+
     final distance =
         targetY - position.y;
 
@@ -96,6 +118,31 @@ class Worm extends SpriteComponent {
       position.y +=
           distance.sign *
               maxMovement;
+    }
+  }
+
+  void _updateVibrato(double dt) {
+    if (isVibrato) {
+      // Wobble around the middle of the body.
+      _wobbleTime += dt;
+      angle = math.sin(
+        _wobbleTime * math.pi * 2 * GameConstants.wormWobbleSpeed,
+      ) * GameConstants.wormWobbleAngle;
+
+      // Flap the wing.
+      _flapTimer += dt;
+      if (_flapTimer >= GameConstants.wormFlapInterval) {
+        _flapTimer = 0;
+        _wingUp = !_wingUp;
+        sprite = _wingUp ? _wingUpSprite : _wingDownSprite;
+      }
+    } else if (_wobbleTime != 0 || _wingUp) {
+      // Vibrato released: go back to resting.
+      _wobbleTime = 0;
+      _flapTimer = 0;
+      _wingUp = false;
+      angle = 0;
+      sprite = _wingDownSprite;
     }
   }
 }

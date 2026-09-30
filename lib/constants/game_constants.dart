@@ -15,6 +15,17 @@ class GameConstants {
   static const double wormHitboxWidthRatio = 0.3;
   static const double wormHitboxHeightRatio = 0.12;
 
+  // Vibrato
+  // Height of the hold-for-vibrato bar above the keys.
+  static const double vibratoBarHeightPortrait = 52;
+  static const double vibratoBarHeightLandscape = 36;
+
+  // While vibrato is held the worm flaps its wing
+  // (seconds per wing frame) and wobbles side to side.
+  static const double wormFlapInterval = 0.1;
+  static const double wormWobbleAngle = 0.12; // radians
+  static const double wormWobbleSpeed = 6; // wobbles per second
+
   // Staff
   static const double maxStaffLineSpacing = 45;
   static const double minStaffLineSpacing = 40;
@@ -60,6 +71,17 @@ class GameConstants {
   static const double noteVolume = 1.0;
   static const double missedNoteVolume = 0.2;
 
+  // Score
+  // Points for hitting a note, plus a bonus of up to
+  // timingBonusPoints if the worm was already waiting
+  // on the note's height when it arrived. A perfect
+  // run of the 15 scored notes is 15 x 650 = 9,750.
+  static const int hitPoints = 500;
+  static const int timingBonusPoints = 150;
+
+  // Seconds to show "LEVEL COMPLETE" before the end screen.
+  static const double levelEndDelay = 2.5;
+
   // One sound per worm height (files are in assets/audio).
   // Lower-case file names so 'B' and 'b' don't clash on
   // Windows/macOS, which ignore upper/lower case.
@@ -101,4 +123,18 @@ class GameConstants {
 
   static const Color pianoBlack =
       Colors.black;
+
+  // Same colours as the LISTEN and PLAY banners.
+  static const Color listenAmber =
+  Color(0xFFFFB400);
+
+  static const Color playOrange =
+  Color(0xFFF25A24);
+
+  // See-through black used behind text panels.
+  static const Color panelColor =
+  Color(0xAA000000);
+
+  static const Color vibratoBarColor =
+  Color(0xFF2B2B2B);
 }

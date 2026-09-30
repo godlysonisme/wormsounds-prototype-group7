@@ -10,7 +10,7 @@ import '../constants/game_constants.dart';
 // working out whether the worm hit or missed the note,
 // and playing the note's sound (quietly if missed).
 mixin PlayableNote
-    on PositionComponent, CollisionCallbacks, HasGameReference<WormSoundsGame> {
+on PositionComponent, CollisionCallbacks, HasGameReference<WormSoundsGame> {
   // Which worm height this note is on (e.g. 'B', 'F', 'b').
   String get lane;
 
@@ -61,7 +61,42 @@ mixin PlayableNote
   void playNoteSound({required bool isHit}) {
     hasPlayed = true;
     wasHit = isHit;
-    game.noteSounds.play(lane, isHit: isHit);
+
+    // Listen phase notes are only for listening, so they
+    // don't count towards the score or use vibrato.
+    final isScored = !alwaysPlaysLoud;
+
+    if (isScored) {
+      game.recordNote(
+        isHit: isHit,
+        points: isHit ? _hitPoints() : 0,
+      );
+    }
+
+    game.noteSounds.play(
+      lane,
+      isHit: isHit,
+      vibrato: isScored && isHit && game.isVibratoActive,
+    );
+  }
+
+  // Full points plus a timing bonus. The bonus is biggest
+  // when the worm was already waiting on the note's height,
+  // and shrinks the later the worm arrives.
+  int _hitPoints() {
+    // How far the note has already gone past the worm.
+    final lateness = game.wormX - position.x;
+
+    final double onTime = 1 -
+        (lateness / GameConstants.lateHitWindow)
+            .clamp(0.0, 1.0)
+            .toDouble();
+
+    // Round the bonus to the nearest 10 points.
+    final bonus =
+        (GameConstants.timingBonusPoints * onTime / 10).round() * 10;
+
+    return GameConstants.hitPoints + bonus;
   }
 
   // A hit only counts if the worm is touching the note AND
@@ -78,18 +113,18 @@ mixin PlayableNote
 
   @override
   void onCollisionStart(
-    Set<Vector2> intersectionPoints,
-    PositionComponent other,
-  ) {
+      Set<Vector2> intersectionPoints,
+      PositionComponent other,
+      ) {
     super.onCollisionStart(intersectionPoints, other);
     _checkHit(other);
   }
 
   @override
   void onCollision(
-    Set<Vector2> intersectionPoints,
-    PositionComponent other,
-  ) {
+      Set<Vector2> intersectionPoints,
+      PositionComponent other,
+      ) {
     super.onCollision(intersectionPoints, other);
     _checkHit(other);
   }

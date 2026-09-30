@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'screen/test_level.dart';
+import 'screen/menu.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,7 +31,7 @@ class WormSoundsApp extends StatelessWidget {
       title: 'Worm Sounds',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark(),
-      home: const TestLevel(),
+      home: const TitleScreen(),
     );
   }
 }
