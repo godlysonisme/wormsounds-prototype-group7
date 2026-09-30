@@ -30,20 +30,23 @@ class NoteManager extends Component
   bool stage5Active = false;
 
   double noteHeight = 0;
+  String noteLane = 'B';
   bool spawnie = false;
-
-  // Height of the note sprites, used to centre each
-  // note on the same line/space the worm moves to.
-  static const double noteSpriteHeight = 48;
 
   // Extra break before the listen and play phases.
   static const double phaseBreak = GameConstants.phaseBreakDuration;
 
-  // Top of a note so that it is centred on the given
-  // worm height. Root = B, middle = F, octave = b.
-  double laneHeight(String note) {
-    return game.noteHeightFor(note) - (noteSpriteHeight / 2);
+  // Sets which worm height the next note goes on, and
+  // centres the note on that line/space.
+  // Root = B, middle = F, octave = b.
+  void setNoteLane(String note) {
+    noteLane = note;
+    noteHeight = game.noteHeightFor(note) - (game.noteSpriteHeight / 2);
   }
+
+  // Short notes keep the shape of their sprite (72 x 48).
+  double get shortNoteLength =>
+      game.noteSpriteHeight * (ShortNote.spriteArea.x / ShortNote.spriteArea.y);
 
   @override
   void update(double dt) {
@@ -74,28 +77,28 @@ class NoteManager extends Component
     if (noteSpawnTimer >= 1 && spawnie == false && noteSpawnTimer <= 1.1) {
       stage1Active = true;
       spawnPhaseMarker(GamePhase.practice);
-      noteHeight = laneHeight('B');
+      setNoteLane('B');
       spawnNote();
       noteSpawnTimer += 1;
       spawnie = true;
     }
 
     if (stage1Track >= 2 && spawnie == true && stage1Track <= 2.2) {
-      noteHeight = laneHeight('b');
+      setNoteLane('b');
       spawnShortNote();
       noteSpawnTimer += 1;
       spawnie = false;
     }
 
     if (stage1Track >= 4 && spawnie == false && stage1Track <= 4.1) {
-      noteHeight = laneHeight('b');
+      setNoteLane('b');
       spawnNote();
       noteSpawnTimer += 1;
       spawnie = true;
     }
 
     if (stage1Track >= 6 && spawnie == true && stage1Track <= 6.5) {
-      noteHeight = laneHeight('B');
+      setNoteLane('B');
       spawnShortNote();
       noteSpawnTimer += 1;
       spawnie = false;
@@ -105,28 +108,28 @@ class NoteManager extends Component
 
     if (stage1Track >= 8 && spawnie == false && stage1Track <= 8.1) {
       stage2Active = true;
-      noteHeight = laneHeight('B');
+      setNoteLane('B');
       spawnNote();
       noteSpawnTimer += 1;
       spawnie = true;
     }
 
-    if (stage2Track >= 1 && spawnie == true && stage2Track <= 1.1) {
-      noteHeight = laneHeight('F');
+    if (stage2Track >= 1.5 && spawnie == true && stage2Track <= 1.6) {
+      setNoteLane('F');
       spawnNote();
       noteSpawnTimer += 1;
       spawnie = false;
     }
 
-    if (stage2Track >= 2 && spawnie == false && stage2Track <= 2.1) {
-      noteHeight = laneHeight('F');
+    if (stage2Track >= 3 && spawnie == false && stage2Track <= 3.1) {
+      setNoteLane('F');
       spawnNote();
       noteSpawnTimer += 1;
       spawnie = true;
     }
 
-    if (stage2Track >= 3 && spawnie == true && stage2Track <= 3.1) {
-      noteHeight = laneHeight('B');
+    if (stage2Track >= 4.5 && spawnie == true && stage2Track <= 4.6) {
+      setNoteLane('B');
       spawnNote();
       noteSpawnTimer += 1;
       spawnie = false;
@@ -134,30 +137,30 @@ class NoteManager extends Component
 
     // Stage 3: Middle and Octave
 
-    if (stage2Track >= 5 && spawnie == false && stage2Track <= 5.1) {
+    if (stage2Track >= 6.5 && spawnie == false && stage2Track <= 6.6) {
       stage3Active = true;
-      noteHeight = laneHeight('F');
+      setNoteLane('F');
       spawnNote();
       noteSpawnTimer += 1;
       spawnie = true;
     }
 
-    if (stage3Track >= 1 && spawnie == true && stage3Track <= 1.1) {
-      noteHeight = laneHeight('b');
+    if (stage3Track >= 1.5 && spawnie == true && stage3Track <= 1.6) {
+      setNoteLane('b');
       spawnNote();
       noteSpawnTimer += 1;
       spawnie = false;
     }
 
-    if (stage3Track >= 2 && spawnie == false && stage3Track <= 2.1) {
-      noteHeight = laneHeight('b');
+    if (stage3Track >= 3 && spawnie == false && stage3Track <= 3.1) {
+      setNoteLane('b');
       spawnNote();
       noteSpawnTimer += 1;
       spawnie = true;
     }
 
-    if (stage3Track >= 3 && spawnie == true && stage3Track <= 3.1) {
-      noteHeight = laneHeight('F');
+    if (stage3Track >= 4.5 && spawnie == true && stage3Track <= 4.6) {
+      setNoteLane('F');
       spawnNote();
       spawnPhaseMarker(GamePhase.listen, isUpNext: true, afterNote: true);
       noteSpawnTimer += 1;
@@ -166,11 +169,11 @@ class NoteManager extends Component
 
     // Stage 4: Trial Teach
 
-    if (stage3Track >= 5 + phaseBreak && spawnie == false && stage3Track <= 5.1 + phaseBreak) {
+    if (stage3Track >= 6.5 + phaseBreak && spawnie == false && stage3Track <= 6.6 + phaseBreak) {
       stage4Active = true;
       spawnPhaseMarker(GamePhase.listen);
       spawnListen();
-      noteHeight = laneHeight('B');
+      setNoteLane('B');
       spawnTeach();
       noteSpawnTimer += 1;
       spawnie = true;
@@ -178,7 +181,7 @@ class NoteManager extends Component
 
     if (stage4Track >= 1.5 && spawnie == true && stage4Track <= 1.6) {
       spawnListen();
-      noteHeight = laneHeight('b');
+      setNoteLane('b');
       spawnTeach();
       noteSpawnTimer += 1;
       spawnie = false;
@@ -186,7 +189,7 @@ class NoteManager extends Component
 
     if (stage4Track >= 3 && spawnie == false && stage4Track <= 3.1) {
       spawnListen();
-      noteHeight = laneHeight('F');
+      setNoteLane('F');
       spawnTeach();
       spawnPhaseMarker(GamePhase.play, isUpNext: true, afterNote: true);
       noteSpawnTimer += 1;
@@ -199,24 +202,24 @@ class NoteManager extends Component
       stage5Active = true;
       spawnPhaseMarker(GamePhase.play);
       spawnPlay();
-      noteHeight = laneHeight('B');
-      spawnTeach();
+      setNoteLane('B');
+      spawnTest();
       noteSpawnTimer += 1;
       spawnie = false;
     }
 
     if (stage5Track >= 1.5 && spawnie == false && stage5Track <= 1.6) {
       spawnPlay();
-      noteHeight = laneHeight('b');
-      spawnTeach();
+      setNoteLane('b');
+      spawnTest();
       noteSpawnTimer += 1;
       spawnie = true;
     }
 
     if (stage5Track >= 3 && spawnie == true && stage5Track <= 3.1) {
       spawnPlay();
-      noteHeight = laneHeight('F');
-      spawnTeach();
+      setNoteLane('F');
+      spawnTest();
       spawnPhaseMarker(GamePhase.complete, afterNote: true);
       noteSpawnTimer += 1;
       spawnie = false;
@@ -226,8 +229,9 @@ class NoteManager extends Component
   void spawnShortNote() {
     final shortNote = ShortNote(
       Vector2(500, noteHeight),
-      Vector2(250, 48),
+      Vector2(shortNoteLength, game.noteSpriteHeight),
       isSharpNote: false,
+      lane: noteLane,
     );
     game.add(shortNote);
   }
@@ -235,8 +239,9 @@ class NoteManager extends Component
   void spawnNote() {
     final note = Note(
       Vector2(500, noteHeight),
-      Vector2(250, 48),
+      Vector2(GameConstants.longNoteLength, game.noteSpriteHeight),
       isSharpNote: false,
+      lane: noteLane,
     );
     game.add(note);
   }
@@ -244,8 +249,9 @@ class NoteManager extends Component
   void spawnTeach() {
     final testnote = TestNote(
       Vector2(500, noteHeight),
-      Vector2(250, 48),
+      Vector2(GameConstants.longNoteLength, game.noteSpriteHeight),
       isTesting: false,
+      lane: noteLane,
     );
     game.add(testnote);
   }
@@ -253,24 +259,25 @@ class NoteManager extends Component
   void spawnTest() {
     final testnote = TestNote(
       Vector2(500, noteHeight),
-      Vector2(250, 48),
+      Vector2(GameConstants.longNoteLength, game.noteSpriteHeight),
       isTesting: true,
+      lane: noteLane,
     );
     game.add(testnote);
   }
 
   void spawnListen() {
     final listen = Listen(
-      Vector2(500, game.staffTopY - (noteSpriteHeight / 2)),
-      Vector2(40, game.staffHeight + noteSpriteHeight),
+      Vector2(500, game.staffTopY - (game.noteSpriteHeight / 2)),
+      Vector2(40, game.staffHeight + game.noteSpriteHeight),
     );
     game.add(listen);
   }
 
   void spawnPlay() {
     final play = Play(
-      Vector2(500, game.staffTopY - (noteSpriteHeight / 2)),
-      Vector2(40, game.staffHeight + noteSpriteHeight),
+      Vector2(500, game.staffTopY - (game.noteSpriteHeight / 2)),
+      Vector2(40, game.staffHeight + game.noteSpriteHeight),
     );
     game.add(play);
   }
@@ -281,7 +288,7 @@ class NoteManager extends Component
   // once the note has fully passed the worm.
   void spawnPhaseMarker(GamePhase phase, {bool isUpNext = false, bool afterNote = false}) {
     final marker = PhaseMarker(
-      Vector2(afterNote ? 500 + 250 : 500, 0),
+      Vector2(afterNote ? 500 + GameConstants.longNoteLength : 500, 0),
       phase: phase,
       isUpNext: isUpNext,
     );

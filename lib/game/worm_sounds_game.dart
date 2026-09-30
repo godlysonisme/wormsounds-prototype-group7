@@ -1,3 +1,4 @@
+import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
@@ -9,10 +10,14 @@ import 'package:wormsounds/game/notemanager.dart';
 import 'package:wormsounds/game/background.dart';
 import 'package:wormsounds/game/phase.dart';
 import 'package:wormsounds/game/phasetext.dart';
+import 'package:wormsounds/game/notesounds.dart';
 
-class WormSoundsGame extends FlameGame {
+class WormSoundsGame extends FlameGame with HasCollisionDetection {
   Worm? _worm;
   late NoteManager noteManager;
+
+  // Plays each note's sound when it reaches the worm.
+  final NoteSounds noteSounds = NoteSounds();
 
   final Map<String, double> _notePositions = {};
 
@@ -34,6 +39,10 @@ class WormSoundsGame extends FlameGame {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
+
+    // Load the note sounds in the background. The first note
+    // takes a few seconds to arrive, which is plenty of time.
+    unawaited(noteSounds.load());
 
     add(Background());
 
@@ -231,6 +240,14 @@ class WormSoundsGame extends FlameGame {
 
   double get wormX =>
       _worm?.position.x ?? 0;
+
+  // The height the worm was last sent to (e.g. 'F').
+  String get wormNote => _currentNote;
+
+  // Notes are a little smaller than the gap between
+  // lines, so each note stays within its line/space.
+  double get noteSpriteHeight =>
+      _staffLineSpacing * GameConstants.noteHeightRatio;
 
   // ------------------------------------------------------------
   // RESPONSIVE WORM SIZE
