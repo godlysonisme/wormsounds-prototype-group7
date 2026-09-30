@@ -10,6 +10,57 @@ phase the player listens to the notes in the tritone interval and is then
 made to match the tune in the playing phase by using a set of keys to match 
 the notes height.
 
+## Setup and Running the App
+
+Before running the project, run this in the terminal to download the dependencies:
+
+```bash
+flutter pub get
+```
+
+You can check that Flutter and the Android development tools are configured
+correctly by running:
+
+```bash
+flutter doctor
+```
+
+### Running on an Android Emulator
+
+In Android Studio, open:
+
+**Tools → Device Manager**
+
+Create an Android virtual device or start an existing emulator. The emulator should appear in the list of available devices.
+
+The game can then be started using the **Run** button in Android Studio or
+with the following terminal command:
+
+```bash
+flutter run
+```
+
+The game supports both portrait and landscape orientation and runs in
+fullscreen mode.
+
+## Testing
+
+The project contains automated Flutter tests for the piano keyboard,
+difficulty rating system, level results and score formatting.
+
+To run all tests in the project, use:
+
+```bash
+flutter test
+```
+
+To run the tests while displaying the name and result of each individual
+test, use:
+
+```bash
+flutter test --reporter expanded
+```
+
 ## Development Using GPT Assistance
 
 This game was developed feature by feature, with GPT helping in many 
