@@ -9,7 +9,11 @@ class Worm extends SpriteComponent {
     size: Vector2.all(
       GameConstants.wormSize,
     ),
-    anchor: Anchor.center,
+    // The worm's body sits in the lower part of
+    // Worm.png (the top rows are empty), so anchor
+    // on the body instead of the image centre.
+    // This keeps the worm flush with the notes.
+    anchor: const Anchor(0.5, 0.71),
   );
 
   late double targetY;

@@ -2,9 +2,13 @@ import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'dart:math' as math;
 import '../constants/game_constants.dart';
 import 'worm.dart';
 import 'package:wormsounds/game/notemanager.dart';
+import 'package:wormsounds/game/background.dart';
+import 'package:wormsounds/game/phase.dart';
+import 'package:wormsounds/game/phasetext.dart';
 
 class WormSoundsGame extends FlameGame {
   Worm? _worm;
@@ -14,9 +18,11 @@ class WormSoundsGame extends FlameGame {
 
   final List<RectangleComponent> _staffLines = [];
 
-  RectangleComponent? _ledgerLine;
+  final PhaseText _phaseText = PhaseText();
 
-
+  // The phase the level is currently in. Updated by the
+  // phase markers as each phase reaches the worm.
+  GamePhase currentPhase = GamePhase.practice;
 
   double _staffBottomY = 0;
   double _staffLineSpacing = 0;
@@ -29,13 +35,17 @@ class WormSoundsGame extends FlameGame {
   Future<void> onLoad() async {
     await super.onLoad();
 
+    add(Background());
+
     _createStaffComponents();
+
+    add(_phaseText);
 
     _layoutGame(size);
 
     final worm = Worm(
       position: Vector2(
-        size.x * 0.5,
+        size.x * GameConstants.wormHorizontalPosition,
         _notePositions[_currentNote]!,
       ),
     );
@@ -49,6 +59,12 @@ class WormSoundsGame extends FlameGame {
     noteManager = NoteManager();
     add(noteManager);
 
+    // Tell the player what the first phase is
+    // before any notes reach the worm.
+    showPhase(
+      GamePhase.practice,
+      isUpNext: true,
+    );
   }
 
   // ------------------------------------------------------------
@@ -67,12 +83,6 @@ class WormSoundsGame extends FlameGame {
       _staffLines.add(line);
       add(line);
     }
-
-    _ledgerLine = RectangleComponent(
-      paint: staffPaint,
-    );
-
-    add(_ledgerLine!);
 
     _staffCreated = true;
   }
@@ -95,15 +105,32 @@ class WormSoundsGame extends FlameGame {
           GameConstants.maxStaffLineSpacing,
         ).toDouble();
 
-    _staffBottomY =
+    // Keep enough room above the staff for the
+    // phase text, which matters on short screens
+    // such as landscape. The bottom note still
+    // needs to fit on screen underneath.
+    final minStaffBottomY =
+        GameConstants.phaseTextAreaHeight +
+            (_staffLineSpacing * 4);
+
+    _staffBottomY = math.min(
+      math.max(
         gameSize.y *
-            GameConstants.staffVerticalPosition;
+            GameConstants.staffVerticalPosition,
+        minStaffBottomY,
+      ),
+      gameSize.y - (_staffLineSpacing * 0.7),
+    ).toDouble();
 
     final staffWidth =
         gameSize.x -
             (GameConstants.staffSidePadding * 2);
 
-    // Position the five staff lines.
+    // Position the five staff lines. The worm's
+    // lowest height (B) sits on the bottom line and
+    // its highest height (b) sits in the top space,
+    // so every height is either on a line or in the
+    // middle of a space.
     for (int i = 0; i < _staffLines.length; i++) {
       final y =
           _staffBottomY -
@@ -120,35 +147,22 @@ class WormSoundsGame extends FlameGame {
         );
     }
 
-    // Ledger line for middle C.
-    final ledgerWidth =
-    GameConstants.ledgerLineWidth
-        .clamp(
-      70,
-      gameSize.x * 0.25,
-    )
-        .toDouble();
-
-    _ledgerLine
-      ?..position = Vector2(
-        (gameSize.x - ledgerWidth) / 2,
-        _staffBottomY +
-            _staffLineSpacing,
-      )
-      ..size = Vector2(
-        ledgerWidth,
-        GameConstants.staffLineThickness,
-      );
+    // Phase text sits just above the top staff line.
+    _phaseText.position = Vector2(
+      gameSize.x / 2,
+      staffTopY - GameConstants.phaseTextGap,
+    );
 
     _calculateNotePositions();
 
-    // Keep the worm centred horizontally
-    // when the orientation changes.
+    // Keep the worm on the left side of the
+    // screen when the orientation changes.
     final worm = _worm;
 
     if (worm != null) {
       worm.position.x =
-          gameSize.x * 0.5;
+          gameSize.x *
+              GameConstants.wormHorizontalPosition;
 
       worm.position.y =
       _notePositions[_currentNote]!;
@@ -168,37 +182,55 @@ class WormSoundsGame extends FlameGame {
     final halfStep =
         _staffLineSpacing / 2;
 
+    // Each note is half a line spacing above the
+    // last, alternating between lines and spaces.
     _notePositions['B'] =
-        _staffBottomY +
-            _staffLineSpacing;
+        _staffBottomY;
 
     _notePositions['C'] =
-        _staffBottomY +
+        _staffBottomY -
             halfStep;
 
     _notePositions['D'] =
-        _staffBottomY;
-
-    _notePositions['E'] =
-        _staffBottomY -
-            halfStep;
-
-    _notePositions['F'] =
         _staffBottomY -
             _staffLineSpacing;
 
-    _notePositions['G'] =
+    _notePositions['E'] =
         _staffBottomY -
             (_staffLineSpacing * 1.5);
 
-    _notePositions['A'] =
+    _notePositions['F'] =
         _staffBottomY -
             (_staffLineSpacing * 2);
 
-    _notePositions['b'] =
+    _notePositions['G'] =
         _staffBottomY -
             (_staffLineSpacing * 2.5);
+
+    _notePositions['A'] =
+        _staffBottomY -
+            (_staffLineSpacing * 3);
+
+    _notePositions['b'] =
+        _staffBottomY -
+            (_staffLineSpacing * 3.5);
   }
+
+  // Centre height of a note's line or space. The note
+  // manager uses this so incoming notes spawn at exactly
+  // the same heights the worm moves to.
+  double noteHeightFor(String note) {
+    return _notePositions[note] ?? _staffBottomY;
+  }
+
+  double get staffTopY =>
+      _staffBottomY - (_staffLineSpacing * 4);
+
+  double get staffHeight =>
+      _staffLineSpacing * 4;
+
+  double get wormX =>
+      _worm?.position.x ?? 0;
 
   // ------------------------------------------------------------
   // RESPONSIVE WORM SIZE
@@ -239,6 +271,25 @@ class WormSoundsGame extends FlameGame {
     _currentNote = note;
 
     worm.moveToY(targetY);
+  }
+
+  // ------------------------------------------------------------
+  // PHASES
+  // ------------------------------------------------------------
+
+  void showPhase(GamePhase phase, {bool isUpNext = false}) {
+    if (!isUpNext) {
+      currentPhase = phase;
+    }
+
+    final title = isUpNext
+        ? 'UP NEXT: ${phase.title}'
+        : phase.title;
+
+    _phaseText.show(
+      title,
+      phase.description,
+    );
   }
 
   // ------------------------------------------------------------
