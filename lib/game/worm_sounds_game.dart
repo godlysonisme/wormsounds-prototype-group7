@@ -14,12 +14,18 @@ import 'package:wormsounds/game/notesounds.dart';
 import 'package:wormsounds/game/scoretext.dart';
 import 'package:wormsounds/game/difficulty.dart';
 import 'package:wormsounds/game/levelresult.dart';
+import 'package:wormsounds/game/level.dart';
 
 class WormSoundsGame extends FlameGame with HasCollisionDetection {
   WormSoundsGame({
+    required this.level,
     required this.difficulty,
     required this.onLevelComplete,
   });
+
+  // Which level is being played. Its note manager
+  // decides which notes are sent.
+  final GameLevel level;
 
   // Only used for the rating on the end level screen.
   final Difficulty difficulty;
@@ -99,7 +105,7 @@ class WormSoundsGame extends FlameGame with HasCollisionDetection {
 
     add(worm);
 
-    noteManager = NoteManager();
+    noteManager = level.createNoteManager();
     add(noteManager);
 
     // Start with the intro, which explains how to move
@@ -383,6 +389,7 @@ class WormSoundsGame extends FlameGame with HasCollisionDetection {
                 notesHit: notesHit,
                 notesTotal: notesTotal,
                 difficulty: difficulty,
+                level: level,
               ),
             );
           },
@@ -390,15 +397,20 @@ class WormSoundsGame extends FlameGame with HasCollisionDetection {
       );
     }
 
+    // The level can use its own text for a phase,
+    // otherwise the normal text from phase.dart is used.
+    final levelText =
+    noteManager.descriptionFor(phase, isUpNext: isUpNext);
+
     if (isUpNext) {
       _phaseText.show(
         'UP NEXT: ${phase.title}',
-        phase.upNextDescription,
+        levelText ?? phase.upNextDescription,
       );
     } else {
       _phaseText.show(
         phase.title,
-        phase.description,
+        levelText ?? phase.description,
       );
     }
   }

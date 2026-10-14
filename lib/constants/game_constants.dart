@@ -64,6 +64,10 @@ class GameConstants {
   // the first practice note is sent.
   static const double practiceReadTime = 5;
 
+  // Seconds a phase's text shows when that phase has no
+  // notes yet (used by the placeholder levels 2 and 3).
+  static const double emptyPhaseTime = 6;
+
   // Space kept free above the staff for the phase text
   // (room for a title and two lines of description).
   static const double phaseTextAreaHeight = 100;
@@ -105,7 +109,7 @@ class GameConstants {
   // Points for hitting a note, plus a bonus of up to
   // timingBonusPoints if the worm was already waiting
   // on the note's height when it arrived. A perfect
-  // run of the 15 scored notes is 15 x 650 = 9,750.
+  // run of level 1's 15 scored notes is 15 x 650 = 9,750.
   // (Learning phase notes are not scored.)
   static const int hitPoints = 500;
   static const int timingBonusPoints = 150;

@@ -26,7 +26,9 @@ extension GamePhaseText on GamePhase {
     }
   }
 
-  // Shown while the phase is happening.
+  // Shown while the phase is happening. A level can
+  // replace any of these with its own text (see
+  // descriptionFor in level1.dart).
   String get description {
     switch (this) {
       case GamePhase.intro:
@@ -45,8 +47,7 @@ extension GamePhaseText on GamePhase {
         return 'Catch each note to play the tune back, in the same '
             'order you heard the notes in the listen phase.';
       case GamePhase.complete:
-        return "Great work! You learned F, low B and high B. "
-            "Let's see how you did...";
+        return "Great work! Let's see how you did...";
     }
   }
 
@@ -55,7 +56,7 @@ extension GamePhaseText on GamePhase {
   String get upNextDescription {
     switch (this) {
       case GamePhase.practice:
-        return 'Time to practise F, low B and high B together! Tip: hold '
+        return 'Time to practise the notes you just learned together! Tip: hold '
             'the vibrato bar above the keys while you catch a note to add vibrato.';
       case GamePhase.listen:
         return 'A short tune made from your three notes will play next. '
@@ -88,8 +89,9 @@ class PhaseMessages {
         'as a note before it arrives to catch it and hear its sound.',
   );
 
-  // Shown as each new note is introduced in the learning phase.
-  // Keys match the piano keys: 'B' = low B, 'b' = high B.
+  // Shown as each new note is introduced in level 1's
+  // learning phase. Keys match the piano keys:
+  // 'B' = low B, 'b' = high B.
   static const Map<String, PhaseMessage> learning = {
     'F': PhaseMessage(
       'LEARNING: F',

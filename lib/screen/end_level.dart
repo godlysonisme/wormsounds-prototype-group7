@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../constants/game_constants.dart';
 import '../game/difficulty.dart';
 import '../game/highscore.dart';
+import '../game/level.dart';
 import '../game/levelresult.dart';
 import 'menu.dart';
 import 'screen_widgets.dart';
@@ -30,13 +31,14 @@ class _EndLevelScreenState extends State<EndLevelScreen> {
     _updateHighScore();
   }
 
-  // Save this score if it beats the old high score.
+  // Save this score if it beats this level's old high score.
   Future<void> _updateHighScore() async {
-    final previous = await HighScore.load();
+    final level = widget.result.level;
+    final previous = await HighScore.load(level);
     final isNew = widget.result.score > previous;
 
     if (isNew) {
-      await HighScore.save(widget.result.score);
+      await HighScore.save(level, widget.result.score);
     }
 
     if (!mounted) return;
@@ -50,7 +52,10 @@ class _EndLevelScreenState extends State<EndLevelScreen> {
   void _restart() {
     Navigator.of(context).pushReplacement(
       fadeRoute(
-        TestLevel(difficulty: widget.result.difficulty),
+        TestLevel(
+          level: widget.result.level,
+          difficulty: widget.result.difficulty,
+        ),
       ),
     );
   }
@@ -58,7 +63,10 @@ class _EndLevelScreenState extends State<EndLevelScreen> {
   void _backToTitle() {
     Navigator.of(context).pushReplacement(
       fadeRoute(
-        TitleScreen(initialDifficulty: widget.result.difficulty),
+        TitleScreen(
+          initialLevel: widget.result.level,
+          initialDifficulty: widget.result.difficulty,
+        ),
       ),
     );
   }
@@ -72,11 +80,11 @@ class _EndLevelScreenState extends State<EndLevelScreen> {
             final bool isLandscape =
                 constraints.maxWidth > constraints.maxHeight;
 
-            const header = GamePanel(
+            final header = GamePanel(
               child: Text(
-                'LEVEL COMPLETE',
+                '${widget.result.level.label} COMPLETE',
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 26,
                   fontWeight: FontWeight.bold,

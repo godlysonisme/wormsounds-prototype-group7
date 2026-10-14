@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../constants/game_constants.dart';
 import '../game/difficulty.dart';
 import '../game/keys.dart';
+import '../game/level.dart';
 import '../game/levelresult.dart';
 import '../game/vibratobutton.dart';
 import '../game/worm_sounds_game.dart';
@@ -13,8 +14,11 @@ import 'screen_widgets.dart';
 class TestLevel extends StatefulWidget {
   const TestLevel({
     super.key,
+    this.level = GameLevel.one,
     this.difficulty = Difficulty.normal,
   });
+
+  final GameLevel level;
 
   // Only changes how strict the rating at the end is.
   final Difficulty difficulty;
@@ -32,6 +36,7 @@ class _TestLevelState extends State<TestLevel> {
     super.initState();
 
     game = WormSoundsGame(
+      level: widget.level,
       difficulty: widget.difficulty,
       onLevelComplete: _showEndScreen,
     );
