@@ -18,6 +18,10 @@ on PositionComponent, CollisionCallbacks, HasGameReference<WormSoundsGame> {
   // volume, since the player is only meant to listen.
   bool get alwaysPlaysLoud => false;
 
+  // Learning phase notes are just for learning, so they
+  // don't count towards the score.
+  bool get isScored => true;
+
   // True once this note has played its sound.
   bool hasPlayed = false;
 
@@ -64,9 +68,9 @@ on PositionComponent, CollisionCallbacks, HasGameReference<WormSoundsGame> {
 
     // Listen phase notes are only for listening, so they
     // don't count towards the score or use vibrato.
-    final isScored = !alwaysPlaysLoud;
+    final countsForScore = isScored && !alwaysPlaysLoud;
 
-    if (isScored) {
+    if (countsForScore) {
       game.recordNote(
         isHit: isHit,
         points: isHit ? _hitPoints() : 0,
@@ -76,7 +80,7 @@ on PositionComponent, CollisionCallbacks, HasGameReference<WormSoundsGame> {
     game.noteSounds.play(
       lane,
       isHit: isHit,
-      vibrato: isScored && isHit && game.isVibratoActive,
+      vibrato: !alwaysPlaysLoud && isHit && game.isVibratoActive,
     );
   }
 

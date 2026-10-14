@@ -36,15 +36,45 @@ class GameConstants {
   static const double staffVerticalPosition = 0.68;
 
   // Phases
-  // Extra seconds of break between each phase so the
-  // player has time to read the phase text.
-  static const double phaseBreakDuration = 3;
+  // Extra seconds of break before the listen and play
+  // phases so the player has time to read the phase text.
+  static const double phaseBreakDuration = 6;
 
-  // Space kept free above the staff for the phase text.
-  static const double phaseTextAreaHeight = 92;
+  // Intro phase: it moves on once the player has moved
+  // the worm this many times and the text has been up for
+  // at least introMinimumTime seconds. If the player never
+  // moves, it moves on anyway after introMaximumTime.
+  static const int introMovesNeeded = 3;
+  static const double introMinimumTime = 6;
+  static const double introMaximumTime = 20;
+
+  // How long the "HOW TO PLAY" text shows before the
+  // learning phase starts.
+  static const double howToPlayTime = 7;
+
+  // Learning phase: seconds between a new note's text
+  // appearing and that note being sent towards the worm
+  // (it then takes about 2 more seconds to arrive).
+  static const double learningReadTime = 4.5;
+
+  // Learning phase: how many times each new note is sent.
+  static const int learningNotesEach = 2;
+
+  // Seconds the "UP NEXT: PRACTICE" text shows before
+  // the first practice note is sent.
+  static const double practiceReadTime = 5;
+
+  // Space kept free above the staff for the phase text
+  // (room for a title and two lines of description).
+  static const double phaseTextAreaHeight = 100;
 
   // Gap between the phase text and the top staff line.
-  static const double phaseTextGap = 28;
+  static const double phaseTextGap = 22;
+
+  // Widest the phase text box can be. In landscape it also
+  // leaves this much space on each side for the score.
+  static const double phaseTextMaxWidth = 560;
+  static const double phaseTextScoreSpace = 120;
 
   // Notes
   // Length of a long note. At the note speed of 200 this
@@ -76,11 +106,12 @@ class GameConstants {
   // timingBonusPoints if the worm was already waiting
   // on the note's height when it arrived. A perfect
   // run of the 15 scored notes is 15 x 650 = 9,750.
+  // (Learning phase notes are not scored.)
   static const int hitPoints = 500;
   static const int timingBonusPoints = 150;
 
   // Seconds to show "LEVEL COMPLETE" before the end screen.
-  static const double levelEndDelay = 2.5;
+  static const double levelEndDelay = 4;
 
   // One sound per worm height (files are in assets/audio).
   // Lower-case file names so 'B' and 'b' don't clash on

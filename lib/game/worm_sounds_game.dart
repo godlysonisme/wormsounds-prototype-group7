@@ -55,7 +55,11 @@ class WormSoundsGame extends FlameGame with HasCollisionDetection {
 
   // The phase the level is currently in. Updated by the
   // phase markers as each phase reaches the worm.
-  GamePhase currentPhase = GamePhase.practice;
+  GamePhase currentPhase = GamePhase.intro;
+
+  // How many times the player has moved the worm. The
+  // intro phase waits for a few moves before moving on.
+  int wormMoveCount = 0;
 
   double _staffBottomY = 0;
   double _staffLineSpacing = 0;
@@ -98,11 +102,10 @@ class WormSoundsGame extends FlameGame with HasCollisionDetection {
     noteManager = NoteManager();
     add(noteManager);
 
-    // Tell the player what the first phase is
-    // before any notes reach the worm.
+    // Start with the intro, which explains how to move
+    // the worm with the keys.
     showPhase(
-      GamePhase.practice,
-      isUpNext: true,
+      GamePhase.intro,
     );
   }
 
@@ -197,10 +200,23 @@ class WormSoundsGame extends FlameGame with HasCollisionDetection {
         );
     }
 
-    // Phase text sits just above the top staff line.
-    _phaseText.position = Vector2(
-      gameSize.x / 2,
-      staffTopY - GameConstants.phaseTextGap,
+    // Phase text sits just above the top staff line. In
+    // landscape it is kept narrower so it doesn't cover
+    // the score in the top-right corner.
+    final bool isLandscape =
+        gameSize.x > gameSize.y;
+
+    final phaseTextWidth = isLandscape
+        ? gameSize.x - (GameConstants.phaseTextScoreSpace * 2)
+        : gameSize.x - 24;
+
+    _phaseText.setLayout(
+      centreX: gameSize.x / 2,
+      bottomY: staffTopY - GameConstants.phaseTextGap,
+      maxWidth: math.min(
+        phaseTextWidth,
+        GameConstants.phaseTextMaxWidth,
+      ),
     );
 
     // Score sits in the top-right corner.
@@ -332,6 +348,10 @@ class WormSoundsGame extends FlameGame with HasCollisionDetection {
 
     if (targetY == null) return;
 
+    if (note != _currentNote) {
+      wormMoveCount++;
+    }
+
     _currentNote = note;
 
     worm.moveToY(targetY);
@@ -370,13 +390,29 @@ class WormSoundsGame extends FlameGame with HasCollisionDetection {
       );
     }
 
-    final title = isUpNext
-        ? 'UP NEXT: ${phase.title}'
-        : phase.title;
+    if (isUpNext) {
+      _phaseText.show(
+        'UP NEXT: ${phase.title}',
+        phase.upNextDescription,
+      );
+    } else {
+      _phaseText.show(
+        phase.title,
+        phase.description,
+      );
+    }
+  }
+
+  // Shows a message that isn't just a phase name, such as
+  // "HOW TO PLAY" or introducing a new note.
+  void showMessage(PhaseMessage message, {GamePhase? phase}) {
+    if (phase != null) {
+      currentPhase = phase;
+    }
 
     _phaseText.show(
-      title,
-      phase.description,
+      message.title,
+      message.description,
     );
   }
 

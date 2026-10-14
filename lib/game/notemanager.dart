@@ -9,10 +9,43 @@ import 'package:wormsounds/game/phase.dart';
 import 'package:wormsounds/game/phasemarker.dart';
 import '../constants/game_constants.dart';
 
+// Something that happens [time] seconds into a phase.
+class LevelEvent {
+  const LevelEvent(this.time, this.action);
+
+  final double time;
+  final void Function() action;
+}
+
 class NoteManager extends Component
     with HasGameReference<WormSoundsGame> {
 
   double noteSpawnTimer = 0;
+
+  // Intro phase: explains the keys and waits for the
+  // player to try moving the worm.
+  double introTrack = 0;
+  bool introActive = true;
+  int introStep = 0;
+  double introFinishedAt = 0;
+
+  // Learning phase: introduces F, low B and high B one
+  // at a time. Runs through learningEvents in order.
+  double learningTrack = 0;
+  bool learningActive = false;
+  int learningStep = 0;
+
+  late final List<LevelEvent> learningEvents = buildLearningEvents();
+
+  // When (in learningTrack time) the practice phase starts.
+  // Worked out in buildLearningEvents().
+  double practiceStartTime = double.infinity;
+
+  // Notes are sent from x = 500 (see spawnNote) at 200
+  // pixels per second, and are 1.5 seconds apart.
+  static const double noteSpawnX = 500;
+  static const double noteSpeed = 200;
+  static const double noteGap = 1.5;
 
   double stage1Track = 0;
   bool stage1Active = false;
@@ -48,9 +81,102 @@ class NoteManager extends Component
   double get shortNoteLength =>
       game.noteSpriteHeight * (ShortNote.spriteArea.x / ShortNote.spriteArea.y);
 
+  // Seconds for a note to reach the worm and fully pass it.
+  double get notePassTime =>
+      (noteSpawnX - game.wormX + GameConstants.longNoteLength) / noteSpeed;
+
+  // The learning phase, step by step. Each new note gets its
+  // text first, then (after some reading time) is sent towards
+  // the worm a couple of times. The next note's text only
+  // appears once the last note has passed the worm.
+  List<LevelEvent> buildLearningEvents() {
+    final events = <LevelEvent>[];
+    double time = 0;
+
+    // F first, then low B, then high B.
+    for (final note in ['F', 'B', 'b']) {
+      events.add(
+        LevelEvent(time, () {
+          game.showMessage(
+            PhaseMessages.learning[note]!,
+            phase: GamePhase.learning,
+          );
+        }),
+      );
+
+      time += GameConstants.learningReadTime;
+
+      for (int i = 0; i < GameConstants.learningNotesEach; i++) {
+        events.add(
+          LevelEvent(time, () {
+            setNoteLane(note);
+            spawnLearningNote();
+          }),
+        );
+
+        time += noteGap;
+      }
+
+      // Wait for the last note to pass the worm.
+      time += notePassTime - noteGap + 0.4;
+    }
+
+    // Then get ready for the practice phase.
+    events.add(
+      LevelEvent(time, () {
+        game.showPhase(
+          GamePhase.practice,
+          isUpNext: true,
+        );
+      }),
+    );
+
+    practiceStartTime = time + GameConstants.practiceReadTime;
+
+    return events;
+  }
+
   @override
   void update(double dt) {
     noteSpawnTimer += dt;
+
+    if (introActive == true) {
+      introTrack += dt;
+    }
+
+    if (learningActive == true) {
+      learningTrack += dt;
+    }
+
+    // Intro 1: once the player has had a go at moving the
+    // worm (or has waited a long time), explain how to play.
+
+    if (introStep == 0 &&
+        ((introTrack >= GameConstants.introMinimumTime &&
+            game.wormMoveCount >= GameConstants.introMovesNeeded) ||
+            introTrack >= GameConstants.introMaximumTime)) {
+      game.showMessage(PhaseMessages.howToPlay);
+      introFinishedAt = introTrack;
+      introStep = 1;
+    }
+
+    // Intro 2: after "HOW TO PLAY", start the learning phase.
+
+    if (introStep == 1 &&
+        introTrack >= introFinishedAt + GameConstants.howToPlayTime) {
+      introActive = false;
+      learningActive = true;
+      introStep = 2;
+    }
+
+    // Learning: run each learning step once its time comes.
+
+    while (learningActive == true &&
+        learningStep < learningEvents.length &&
+        learningTrack >= learningEvents[learningStep].time) {
+      learningEvents[learningStep].action();
+      learningStep++;
+    }
 
     if (stage1Active == true) {
       stage1Track += dt;
@@ -72,9 +198,11 @@ class NoteManager extends Component
       stage5Track += dt;
     }
 
+    // Practice phase (stages 1 to 3)
     // Stage 1: Root and Octave
 
-    if (noteSpawnTimer >= 1 && spawnie == false && noteSpawnTimer <= 1.1) {
+    if (learningTrack >= practiceStartTime && spawnie == false && stage1Active == false) {
+      learningActive = false;
       stage1Active = true;
       spawnPhaseMarker(GamePhase.practice);
       setNoteLane('B');
@@ -167,7 +295,7 @@ class NoteManager extends Component
       spawnie = false;
     }
 
-    // Stage 4: Trial Teach
+    // Stage 4: Trial Teach (Listen phase)
 
     if (stage3Track >= 6.5 + phaseBreak && spawnie == false && stage3Track <= 6.6 + phaseBreak) {
       stage4Active = true;
@@ -196,7 +324,7 @@ class NoteManager extends Component
       spawnie = true;
     }
 
-    // Stage 5: Test
+    // Stage 5: Test (Play phase)
 
     if (stage4Track >= 5 + phaseBreak && spawnie == true && stage4Track <= 5.1 + phaseBreak) {
       stage5Active = true;
@@ -242,6 +370,19 @@ class NoteManager extends Component
       Vector2(GameConstants.longNoteLength, game.noteSpriteHeight),
       isSharpNote: false,
       lane: noteLane,
+    );
+    game.add(note);
+  }
+
+  // Learning phase notes play like normal notes but
+  // don't count towards the score.
+  void spawnLearningNote() {
+    final note = Note(
+      Vector2(500, noteHeight),
+      Vector2(GameConstants.longNoteLength, game.noteSpriteHeight),
+      isSharpNote: false,
+      lane: noteLane,
+      isScored: false,
     );
     game.add(note);
   }

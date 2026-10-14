@@ -11,7 +11,11 @@ class Note extends SpriteComponent
   @override
   final String lane;
 
-  Note(Vector2 position, Vector2 size, {required this.isSharpNote, required this.lane})
+  // False for learning phase notes, which aren't scored.
+  @override
+  final bool isScored;
+
+  Note(Vector2 position, Vector2 size, {required this.isSharpNote, required this.lane, this.isScored = true})
       : super(position: position, size: size);
 
   @override
