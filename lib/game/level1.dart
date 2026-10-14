@@ -31,6 +31,8 @@ class Level1NoteManager extends NoteManager {
   double stage5Track = 0;
   bool stage5Active = false;
 
+  double drumTime = 2;
+
   // The learning phase: F first, then low B, then high B.
   // Then "UP NEXT: PRACTICE" is shown before stage 1 starts.
   @override
@@ -80,6 +82,8 @@ class Level1NoteManager extends NoteManager {
 
   @override
   void updateStages(double dt) {
+
+
     if (stage1Active == true) {
       stage1Track += dt;
     }
@@ -102,6 +106,18 @@ class Level1NoteManager extends NoteManager {
 
     // Practice phase (stages 1 to 3)
     // Stage 1: Root and Octave
+
+    if (stage1Active == true) {
+      drumTime += dt;
+      if (drumTime > 2 && drumTime < 2.1) {
+        spawnDrum();
+        drumTime = 0;
+      }
+    }
+
+
+
+
 
     if (timelineTrack >= practiceStartTime && spawnie == false && stage1Active == false) {
       timelineActive = false;
@@ -144,7 +160,7 @@ class Level1NoteManager extends NoteManager {
       spawnie = true;
     }
 
-    if (stage2Track >= 1.5 && spawnie == true && stage2Track <= 1.6) {
+    if (stage2Track >= 1.0 && spawnie == true && stage2Track <= 1.1) {
       setNoteLane('F');
       spawnNote();
       noteSpawnTimer += 1;
@@ -158,7 +174,7 @@ class Level1NoteManager extends NoteManager {
       spawnie = true;
     }
 
-    if (stage2Track >= 4.5 && spawnie == true && stage2Track <= 4.6) {
+    if (stage2Track >= 4.0 && spawnie == true && stage2Track <= 4.1) {
       setNoteLane('B');
       spawnNote();
       noteSpawnTimer += 1;
@@ -167,7 +183,7 @@ class Level1NoteManager extends NoteManager {
 
     // Stage 3: Middle and Octave
 
-    if (stage2Track >= 6.5 && spawnie == false && stage2Track <= 6.6) {
+    if (stage2Track >= 6.0 && spawnie == false && stage2Track <= 6.1) {
       stage3Active = true;
       setNoteLane('F');
       spawnNote();
@@ -175,7 +191,7 @@ class Level1NoteManager extends NoteManager {
       spawnie = true;
     }
 
-    if (stage3Track >= 1.5 && spawnie == true && stage3Track <= 1.6) {
+    if (stage3Track >= 2.0 && spawnie == true && stage3Track <= 2.1) {
       setNoteLane('b');
       spawnNote();
       noteSpawnTimer += 1;
@@ -189,7 +205,7 @@ class Level1NoteManager extends NoteManager {
       spawnie = true;
     }
 
-    if (stage3Track >= 4.5 && spawnie == true && stage3Track <= 4.6) {
+    if (stage3Track >= 4 && spawnie == true && stage3Track <= 4.1) {
       setNoteLane('F');
       spawnNote();
       spawnPhaseMarker(GamePhase.listen, isUpNext: true, afterNote: true);
@@ -199,7 +215,7 @@ class Level1NoteManager extends NoteManager {
 
     // Stage 4: Trial Teach (Listen phase)
 
-    if (stage3Track >= 6.5 + phaseBreak && spawnie == false && stage3Track <= 6.6 + phaseBreak) {
+    if (stage3Track >= 6 + phaseBreak && spawnie == false && stage3Track <= 6.1 + phaseBreak) {
       stage4Active = true;
       spawnPhaseMarker(GamePhase.listen);
       spawnListen();
@@ -209,7 +225,7 @@ class Level1NoteManager extends NoteManager {
       spawnie = true;
     }
 
-    if (stage4Track >= 1.5 && spawnie == true && stage4Track <= 1.6) {
+    if (stage4Track >= 1 && spawnie == true && stage4Track <= 1.1) {
       spawnListen();
       setNoteLane('b');
       spawnTeach();
@@ -238,7 +254,7 @@ class Level1NoteManager extends NoteManager {
       spawnie = false;
     }
 
-    if (stage5Track >= 1.5 && spawnie == false && stage5Track <= 1.6) {
+    if (stage5Track >= 1 && spawnie == false && stage5Track <= 1.1) {
       spawnPlay();
       setNoteLane('b');
       spawnTest();

@@ -8,6 +8,7 @@ import 'package:wormsounds/game/play.dart';
 import 'package:wormsounds/game/phase.dart';
 import 'package:wormsounds/game/phasemarker.dart';
 import '../constants/game_constants.dart';
+import 'package:wormsounds/game/timeline.dart';
 
 // Something that happens [time] seconds into a level's
 // timeline (or into a phase, for the phase note lists in
@@ -285,5 +286,13 @@ abstract class NoteManager extends Component
       isUpNext: isUpNext,
     );
     game.add(marker);
+  }
+
+  void spawnDrum() {
+    final timeline = TimeLine(
+      Vector2(noteSpawnX, game.staffTopY - (game.noteSpriteHeight / 2)),
+      Vector2(10, game.staffHeight + game.noteSpriteHeight),
+    );
+    game.add(timeline);
   }
 }
