@@ -14,9 +14,9 @@ class TimeLine extends SpriteComponent
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    await FlameAudio.audioCache.loadAll([
+    /*await FlameAudio.audioCache.loadAll([
       'drumloop.mp3',
-    ]);
+    ]);*/
 
     sprite = await Sprite.load(
       'black.png',

@@ -52,21 +52,8 @@ class GameConstants {
   // learning phase starts.
   static const double howToPlayTime = 7;
 
-  // Learning phase: seconds between a new note's text
-  // appearing and that note being sent towards the worm
-  // (it then takes about 2 more seconds to arrive).
-  static const double learningReadTime = 4.5;
-
-  // Learning phase: how many times each new note is sent.
-  static const int learningNotesEach = 2;
-
-  // Seconds the "UP NEXT: PRACTICE" text shows before
-  // the first practice note is sent.
-  static const double practiceReadTime = 5;
-
-  // Seconds a phase's text shows when that phase has no
-  // notes yet (used by the placeholder levels 2 and 3).
-  static const double emptyPhaseTime = 6;
+  // (The learning, practice, listen and play timings for
+  // each level are in that level's own file, e.g. level1.dart.)
 
   // Space kept free above the staff for the phase text
   // (room for a title and two lines of description).
@@ -172,4 +159,4 @@ class GameConstants {
 
   static const Color vibratoBarColor =
   Color(0xFF2B2B2B);
-}
+}

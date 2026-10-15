@@ -3,18 +3,32 @@ import 'package:wormsounds/game/phase.dart';
 import '../constants/game_constants.dart';
 
 // LEVEL 1: teaches F, low B and high B.
-
-// Learning: each new note is introduced with its own text.
-// Practice (stages 1 to 3), Listen (stage 4) and Play
-// (stage 5) are timed in updateStages below.
+//
+// Everything that happens in this level is mapped out here, in
+// order: the intro, the learning phase, then the practice,
+// listen and play stages. The spawn functions it uses
+// (setNoteLane, spawnNote, spawnPhaseMarker...) are in
+// notemanager.dart.
 class Level1NoteManager extends NoteManager {
-
-  // When (in timelineTrack time) the practice phase starts.
-  // Worked out in buildTimeline().
-  double practiceStartTime = double.infinity;
 
   // Extra break before the listen and play phases.
   static const double phaseBreak = GameConstants.phaseBreakDuration;
+
+  // Intro: explains the keys and waits for the player to
+  // try moving the worm.
+  double introTrack = 0;
+  bool introActive = true;
+  int introStep = 0;
+  double introFinishedAt = 0;
+
+  // Learning: introduces each new note. Times in
+  // updateLearning are seconds since learning started.
+  double learningTrack = 0;
+  bool learningActive = false;
+
+  // When (in learningTrack time) the practice phase starts.
+  // 5 seconds after "UP NEXT: PRACTICE" is shown.
+  static const double practiceStartTime = 33.5;
 
   double stage1Track = 0;
   bool stage1Active = false;
@@ -33,36 +47,32 @@ class Level1NoteManager extends NoteManager {
 
   double drumTime = 2;
 
-  // The learning phase: F first, then low B, then high B.
-  // Then "UP NEXT: PRACTICE" is shown before stage 1 starts.
-  @override
-  List<LevelEvent> buildTimeline() {
-    final events = <LevelEvent>[];
-    double time = 0;
+  double noteSpawnTimer = 0;
+  bool spawnie = false;
 
-    for (final note in ['F', 'B', 'b']) {
-      time = addLearningNote(
-        events,
-        time,
-        note,
-        PhaseMessages.learning[note]!,
-      );
-    }
+  // Each block in updateLearning runs once. once('name') is
+  // true the first time it is called with that name only.
+  final Set<String> _done = {};
+  bool once(String name) => _done.add(name);
 
-    // Then get ready for the practice phase.
-    events.add(
-      LevelEvent(time, () {
-        game.showPhase(
-          GamePhase.practice,
-          isUpNext: true,
-        );
-      }),
-    );
+  // The text shown as each new note is introduced.
+  static const PhaseMessage learnF = PhaseMessage(
+    'LEARNING: F',
+    'This oncoming note is F, on the middle line of the staff. '
+        'Press the F key to move the worm to its height and catch it!',
+  );
 
-    practiceStartTime = time + GameConstants.practiceReadTime;
+  static const PhaseMessage learnLowB = PhaseMessage(
+    'LEARNING: LOW B',
+    'Next is low B, on the bottom line. It is the lowest note in this '
+        'level. Press the B key to drop the worm down and catch it!',
+  );
 
-    return events;
-  }
+  static const PhaseMessage learnHighB = PhaseMessage(
+    'LEARNING: HIGH B',
+    'Last one: high B, in the top space. It sounds like low B, just one '
+        'octave higher. Press the b key to fly up and catch it!',
+  );
 
   // Level 1's own text, naming the notes it teaches.
   @override
@@ -81,6 +91,120 @@ class Level1NoteManager extends NoteManager {
   }
 
   @override
+  void update(double dt) {
+    noteSpawnTimer += dt;
+
+    updateIntro(dt);
+    updateLearning(dt);
+    updateStages(dt);
+  }
+
+  // ------------------------------------------------------------
+  // INTRO
+  // ------------------------------------------------------------
+
+  void updateIntro(double dt) {
+    if (introActive == false) return;
+
+    introTrack += dt;
+
+    // Intro 1: once the player has had a go at moving the
+    // worm (or has waited a long time), explain how to play.
+
+    if (introStep == 0 &&
+        ((introTrack >= GameConstants.introMinimumTime &&
+            game.wormMoveCount >= GameConstants.introMovesNeeded) ||
+            introTrack >= GameConstants.introMaximumTime)) {
+      game.showMessage(PhaseMessages.howToPlay);
+      introFinishedAt = introTrack;
+      introStep = 1;
+    }
+
+    // Intro 2: after "HOW TO PLAY", start the learning phase.
+
+    if (introStep == 1 &&
+        introTrack >= introFinishedAt + GameConstants.howToPlayTime) {
+      introActive = false;
+      learningActive = true;
+      introStep = 2;
+    }
+  }
+
+  // ------------------------------------------------------------
+  // LEARNING
+  // Each new note: its text first, then 4.5 seconds later it is
+  // sent towards the worm, twice, 1.5 seconds apart (learning
+  // notes aren't scored). Each note takes 9.5 seconds in total,
+  // so the next note's text only appears once the last note
+  // has fully passed the worm.
+  // ------------------------------------------------------------
+
+  void updateLearning(double dt) {
+    if (learningActive == false) return;
+
+    learningTrack += dt;
+
+    // F
+
+    if (learningTrack >= 0 && once('F text')) {
+      game.showMessage(learnF, phase: GamePhase.learning);
+    }
+
+    if (learningTrack >= 4.5 && once('F note 1')) {
+      setNoteLane('F');
+      spawnLearningNote();
+    }
+
+    if (learningTrack >= 6 && once('F note 2')) {
+      setNoteLane('F');
+      spawnLearningNote();
+    }
+
+    // Low B
+
+    if (learningTrack >= 9.5 && once('low B text')) {
+      game.showMessage(learnLowB, phase: GamePhase.learning);
+    }
+
+    if (learningTrack >= 14 && once('low B note 1')) {
+      setNoteLane('B');
+      spawnLearningNote();
+    }
+
+    if (learningTrack >= 15.5 && once('low B note 2')) {
+      setNoteLane('B');
+      spawnLearningNote();
+    }
+
+    // High B
+
+    if (learningTrack >= 19 && once('high B text')) {
+      game.showMessage(learnHighB, phase: GamePhase.learning);
+    }
+
+    if (learningTrack >= 23.5 && once('high B note 1')) {
+      setNoteLane('b');
+      spawnLearningNote();
+    }
+
+    if (learningTrack >= 25 && once('high B note 2')) {
+      setNoteLane('b');
+      spawnLearningNote();
+    }
+
+    // Get ready for the practice phase, which starts at
+    // practiceStartTime (see stage 1 below).
+
+    if (learningTrack >= 28.5 && once('up next practice')) {
+      game.showPhase(GamePhase.practice, isUpNext: true);
+    }
+  }
+
+  // ------------------------------------------------------------
+  // PRACTICE (stages 1 to 3), LISTEN (stage 4), PLAY (stage 5)
+  // Stage 1 starts once learningTrack reaches practiceStartTime.
+  // ------------------------------------------------------------
+
   void updateStages(double dt) {
 
 
@@ -119,8 +243,8 @@ class Level1NoteManager extends NoteManager {
 
 
 
-    if (timelineTrack >= practiceStartTime && spawnie == false && stage1Active == false) {
-      timelineActive = false;
+    if (learningTrack >= practiceStartTime && spawnie == false && stage1Active == false) {
+      learningActive = false;
       stage1Active = true;
       spawnPhaseMarker(GamePhase.practice);
       setNoteLane('B');
@@ -215,7 +339,7 @@ class Level1NoteManager extends NoteManager {
 
     // Stage 4: Trial Teach (Listen phase)
 
-    if (stage3Track >= 6 + phaseBreak && spawnie == false && stage3Track <= 6.1 + phaseBreak) {
+    if (stage3Track >= 7 + phaseBreak && spawnie == false && stage3Track <= 7.1 + phaseBreak) {
       stage4Active = true;
       spawnPhaseMarker(GamePhase.listen);
       spawnListen();
@@ -225,7 +349,7 @@ class Level1NoteManager extends NoteManager {
       spawnie = true;
     }
 
-    if (stage4Track >= 1 && spawnie == true && stage4Track <= 1.1) {
+    if (stage4Track >= 2 && spawnie == true && stage4Track <= 2.1) {
       spawnListen();
       setNoteLane('b');
       spawnTeach();
@@ -233,7 +357,7 @@ class Level1NoteManager extends NoteManager {
       spawnie = false;
     }
 
-    if (stage4Track >= 3 && spawnie == false && stage4Track <= 3.1) {
+    if (stage4Track >= 4 && spawnie == false && stage4Track <= 4.1) {
       spawnListen();
       setNoteLane('F');
       spawnTeach();
@@ -244,7 +368,7 @@ class Level1NoteManager extends NoteManager {
 
     // Stage 5: Test (Play phase)
 
-    if (stage4Track >= 5 + phaseBreak && spawnie == true && stage4Track <= 5.1 + phaseBreak) {
+    if (stage4Track >= 6 + phaseBreak && spawnie == true && stage4Track <= 6.1 + phaseBreak) {
       stage5Active = true;
       spawnPhaseMarker(GamePhase.play);
       spawnPlay();
@@ -254,7 +378,7 @@ class Level1NoteManager extends NoteManager {
       spawnie = false;
     }
 
-    if (stage5Track >= 1 && spawnie == false && stage5Track <= 1.1) {
+    if (stage5Track >= 8 && spawnie == false && stage5Track <= 8.1) {
       spawnPlay();
       setNoteLane('b');
       spawnTest();
@@ -262,7 +386,7 @@ class Level1NoteManager extends NoteManager {
       spawnie = true;
     }
 
-    if (stage5Track >= 3 && spawnie == true && stage5Track <= 3.1) {
+    if (stage5Track >= 10 && spawnie == true && stage5Track <= 10.1) {
       spawnPlay();
       setNoteLane('F');
       spawnTest();

@@ -89,24 +89,6 @@ class PhaseMessages {
         'as a note before it arrives to catch it and hear its sound.',
   );
 
-  // Shown as each new note is introduced in level 1's
-  // learning phase. Keys match the piano keys:
-  // 'B' = low B, 'b' = high B.
-  static const Map<String, PhaseMessage> learning = {
-    'F': PhaseMessage(
-      'LEARNING: F',
-      'This oncoming note is F, on the middle line of the staff. '
-          'Press the F key to move the worm to its height and catch it!',
-    ),
-    'B': PhaseMessage(
-      'LEARNING: LOW B',
-      'Next is low B, on the bottom line. It is the lowest note in this '
-          'level. Press the B key to drop the worm down and catch it!',
-    ),
-    'b': PhaseMessage(
-      'LEARNING: HIGH B',
-      'Last one: high B, in the top space. It sounds like low B, just one '
-          'octave higher. Press the b key to fly up and catch it!',
-    ),
-  };
-}
+  // Each level's learning text (e.g. "LEARNING: F") is kept
+  // in that level's own file, e.g. level1.dart.
+}
