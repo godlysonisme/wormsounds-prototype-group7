@@ -239,10 +239,6 @@ class Level1NoteManager extends NoteManager {
       }
     }
 
-
-
-
-
     if (learningTrack >= practiceStartTime && spawnie == false && stage1Active == false) {
       learningActive = false;
       stage1Active = true;

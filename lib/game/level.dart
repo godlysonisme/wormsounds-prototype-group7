@@ -33,10 +33,10 @@ extension GameLevelInfo on GameLevel {
         return 'Learn F, low B and high B.';
 
       case GameLevel.two:
-        return 'Add description of level here when logic is added';
+        return 'Learning the 2nd and 3rd Interval';
 
       case GameLevel.three:
-        return 'Add description of level here when logic is added';
+        return 'Learning an arpeggiated major 7th';
 
       case GameLevel.endless:
         return 'Random note sequences that alternate between '
