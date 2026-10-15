@@ -67,6 +67,42 @@ class GameConstants {
   static const double phaseTextMaxWidth = 560;
   static const double phaseTextScoreSpace = 120;
 
+  // ------------------------------------------------------------
+  // Endless Mode
+  // ------------------------------------------------------------
+
+  // How long the Endless Mode explanation
+  // remains before Round 1 begins.
+    static const double endlessIntroTime = 5;
+
+  // Delay before the first note of each
+  // LISTEN / PLAY sequence is spawned.
+    static const double endlessPhaseLeadIn = 1.5;
+
+  // Time between notes.
+  // 1.5 seconds matches the spacing already
+  // used throughout the normal levels.
+    static const double endlessNoteSpacing = 1.5;
+
+  // Time spent showing "UP NEXT: PLAY".
+    static const double endlessTransitionTime = 3;
+
+  // Pause after completing a PLAY round.
+    static const double endlessRoundBreak = 2.5;
+
+  // Extra time after the final note reaches
+  // the worm before changing phase.
+    static const double endlessPostPhrasePause = 1.2;
+
+  // Start with three-note sequences.
+    static const int endlessStartSequenceLength = 3;
+
+  // Do not make phrases longer than seven notes.
+    static const int endlessMaxSequenceLength = 7;
+
+  // Increase sequence length every two rounds.
+  static const int endlessRoundsPerIncrease = 2;
+
   // Notes
   // Length of a long note. At the note speed of 200 this
   // is 1 second, leaving a 0.5 second gap between notes
@@ -159,4 +195,4 @@ class GameConstants {
 
   static const Color vibratoBarColor =
   Color(0xFF2B2B2B);
-}
+}
