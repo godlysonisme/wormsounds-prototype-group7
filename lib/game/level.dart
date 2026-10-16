@@ -25,18 +25,17 @@ extension GameLevelInfo on GameLevel {
     return 'LEVEL $number';
   }
 
-  // Shown under the level selector
-  // on the title screen.
+  // Shown on the title / level selection screens.
   String get description {
     switch (this) {
       case GameLevel.one:
         return 'Learn F, low B and high B.';
 
       case GameLevel.two:
-        return 'Learning the 2nd and 3rd Interval';
+        return 'Learn G, A and B through intervals in the G scale.';
 
       case GameLevel.three:
-        return 'Learning an arpeggiated major 7th';
+        return 'Learn C, E, G and B through a C major 7 chord.';
 
       case GameLevel.endless:
         return 'Random note sequences that alternate between '
@@ -63,8 +62,8 @@ extension GameLevelInfo on GameLevel {
     }
   }
 
-  // Each normal level and Endless Mode
-  // gets its own locally stored high score.
+  // Each level and Endless Mode gets
+  // its own locally stored high score.
   String get highScoreKey {
     switch (this) {
       case GameLevel.one:

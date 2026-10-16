@@ -12,72 +12,99 @@ class Worm extends SpriteComponent {
     size: Vector2.all(
       GameConstants.wormSize,
     ),
+
+    // Render the worm in front of notes,
+    // timing bars and staff components.
+    priority: 5,
+
     // The worm's body sits in the lower part of
     // Worm.png (the top rows are empty), so anchor
     // on the body instead of the image centre.
-    // This keeps the worm flush with the notes.
-    anchor: const Anchor(0.5, bodyCentreY),
+    anchor: const Anchor(
+      0.5,
+      bodyCentreY,
+    ),
   );
 
-  // How far down the image the middle of the body is.
-  static const double bodyCentreY = 0.71;
+  // How far down the image the middle
+  // of the worm's body is.
+  static const double bodyCentreY =
+  0.71;
 
   late double targetY;
 
-  // Thin hitbox through the middle of the worm's body.
-  // Given a size and position so it doesn't fill the
-  // whole (mostly empty) image.
-  final RectangleHitbox _hitbox = RectangleHitbox(
+  // Thin hitbox through the middle of
+  // the worm's body.
+  final RectangleHitbox _hitbox =
+  RectangleHitbox(
     position: Vector2.zero(),
     size: Vector2.zero(),
-    collisionType: CollisionType.active,
+    collisionType:
+    CollisionType.active,
   );
 
   final double movementSpeed =
-      GameConstants.wormMovementSpeed;
+      GameConstants
+          .wormMovementSpeed;
 
-  // Vibrato animation: while vibrato is held the worm
-  // flaps its wing (swapping between Worm.png and
-  // WormFlap.png) and wobbles side to side.
+  // Vibrato animation.
   bool isVibrato = false;
 
-  late final Sprite _wingDownSprite;
-  late final Sprite _wingUpSprite;
+  late final Sprite
+  _wingDownSprite;
+
+  late final Sprite
+  _wingUpSprite;
 
   bool _wingUp = false;
+
   double _flapTimer = 0;
+
   double _wobbleTime = 0;
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
 
-    _wingDownSprite = await Sprite.load(
+    _wingDownSprite =
+    await Sprite.load(
       'Worm.png',
     );
 
-    _wingUpSprite = await Sprite.load(
+    _wingUpSprite =
+    await Sprite.load(
       'WormFlap.png',
     );
 
-    sprite = _wingDownSprite;
+    sprite =
+        _wingDownSprite;
 
-    targetY = position.y;
+    targetY =
+        position.y;
 
     _updateHitbox();
-    add(_hitbox);
 
-    // The worm is resized when the screen rotates,
-    // so keep the hitbox matched to its new size.
-    size.addListener(_updateHitbox);
+    add(
+      _hitbox,
+    );
+
+    // Keep the hitbox matched when
+    // the worm is resized.
+    size.addListener(
+      _updateHitbox,
+    );
   }
 
   void _updateHitbox() {
     final hitboxWidth =
-        size.x * GameConstants.wormHitboxWidthRatio;
+        size.x *
+            GameConstants
+                .wormHitboxWidthRatio;
 
     final hitboxHeight =
-        size.y * GameConstants.wormHitboxHeightRatio;
+        size.y *
+            GameConstants
+                .wormHitboxHeightRatio;
 
     _hitbox
       ..size = Vector2(
@@ -85,26 +112,38 @@ class Worm extends SpriteComponent {
         hitboxHeight,
       )
       ..position = Vector2(
-        (size.x - hitboxWidth) / 2,
-        (size.y * bodyCentreY) - (hitboxHeight / 2),
+        (size.x -
+            hitboxWidth) /
+            2,
+        (size.y *
+            bodyCentreY) -
+            (hitboxHeight / 2),
       );
   }
 
-  void moveToY(double newY) {
-    targetY = newY;
+  void moveToY(
+      double newY,
+      ) {
+    targetY =
+        newY;
   }
 
   @override
   void update(double dt) {
     super.update(dt);
 
-    _updateVibrato(dt);
+    _updateVibrato(
+      dt,
+    );
 
     final distance =
-        targetY - position.y;
+        targetY -
+            position.y;
 
     if (distance.abs() < 1) {
-      position.y = targetY;
+      position.y =
+          targetY;
+
       return;
     }
 
@@ -113,7 +152,8 @@ class Worm extends SpriteComponent {
 
     if (distance.abs() <=
         maxMovement) {
-      position.y = targetY;
+      position.y =
+          targetY;
     } else {
       position.y +=
           distance.sign *
@@ -121,28 +161,49 @@ class Worm extends SpriteComponent {
     }
   }
 
-  void _updateVibrato(double dt) {
+  void _updateVibrato(
+      double dt,
+      ) {
     if (isVibrato) {
-      // Wobble around the middle of the body.
       _wobbleTime += dt;
-      angle = math.sin(
-        _wobbleTime * math.pi * 2 * GameConstants.wormWobbleSpeed,
-      ) * GameConstants.wormWobbleAngle;
 
-      // Flap the wing.
+      angle = math.sin(
+        _wobbleTime *
+            math.pi *
+            2 *
+            GameConstants
+                .wormWobbleSpeed,
+      ) *
+          GameConstants
+              .wormWobbleAngle;
+
       _flapTimer += dt;
-      if (_flapTimer >= GameConstants.wormFlapInterval) {
+
+      if (_flapTimer >=
+          GameConstants
+              .wormFlapInterval) {
         _flapTimer = 0;
-        _wingUp = !_wingUp;
-        sprite = _wingUp ? _wingUpSprite : _wingDownSprite;
+
+        _wingUp =
+        !_wingUp;
+
+        sprite =
+        _wingUp
+            ? _wingUpSprite
+            : _wingDownSprite;
       }
-    } else if (_wobbleTime != 0 || _wingUp) {
-      // Vibrato released: go back to resting.
+    } else if (_wobbleTime != 0 ||
+        _wingUp) {
       _wobbleTime = 0;
+
       _flapTimer = 0;
+
       _wingUp = false;
+
       angle = 0;
-      sprite = _wingDownSprite;
+
+      sprite =
+          _wingDownSprite;
     }
   }
 }

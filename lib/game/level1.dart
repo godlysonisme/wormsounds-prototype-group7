@@ -364,7 +364,7 @@ class Level1NoteManager extends NoteManager {
 
     // Stage 5: Test (Play phase)
 
-    if (stage4Track >= 6 + phaseBreak && spawnie == true && stage4Track <= 6.1 + phaseBreak) {
+    if (stage4Track >= 10 && spawnie == true && stage4Track <= 10.1) {
       stage5Active = true;
       spawnPhaseMarker(GamePhase.play);
       spawnPlay();
@@ -374,7 +374,7 @@ class Level1NoteManager extends NoteManager {
       spawnie = false;
     }
 
-    if (stage5Track >= 8 && spawnie == false && stage5Track <= 8.1) {
+    if (stage5Track >= 2 && spawnie == false && stage5Track <= 2.1) {
       spawnPlay();
       setNoteLane('b');
       spawnTest();
@@ -382,7 +382,7 @@ class Level1NoteManager extends NoteManager {
       spawnie = true;
     }
 
-    if (stage5Track >= 10 && spawnie == true && stage5Track <= 10.1) {
+    if (stage5Track >= 4 && spawnie == true && stage5Track <= 4.1) {
       spawnPlay();
       setNoteLane('F');
       spawnTest();
